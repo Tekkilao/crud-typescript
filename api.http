@@ -1,0 +1,34 @@
+
+###create
+
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "email": "henriquelindaogostosodasnovinhas15emeio@gmail.com",
+    "name": "Henrique Krause",
+    "age": 21
+}
+
+### find all
+
+GET http://localhost:3000/users
+
+### find one
+GET http://localhost:3000/users/3
+
+### update
+
+PUT http://localhost:3000/users/3
+Content-Type: application/json
+
+{
+    "email": "henriquelindaogostosodasnovinhas16naregua@gmail.com",
+    "name": "Henrique da Silva Krause",
+    "age": 22
+}
+
+
+### delete
+
+DELETE http://localhost:3000/users/3

@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import { UserModel } from '../database/models/UserModel';
+import {registerValidation} from '../validation/validation';
 
 class UserController {
 
@@ -11,7 +12,7 @@ class UserController {
     };
 
     async findOne(req: Request, res: Response) {
-        const {userId} =  req.params;
+        const {userId} = req.params;
         const user = await UserModel.findOne({
             where:{id: userId}
         });
@@ -20,15 +21,42 @@ class UserController {
     };
 
     async create(req: Request, res: Response) {
-        const {email, name, age} = req.body;
-        const user = await UserModel.create({
-            name,
-            email,
-            age
-        });
+        const {name, email, password, password2} = req.body;
+        let {error} = registerValidation(req.body)
 
-        return res.status(201).json(user);
+        let errors: any[] = [];
+        if (error) {
+            errors.push({text: error.details[0].message});
+        };
 
+        const emailExist = await UserModel.findOne({where: {email: email}})
+
+        if (emailExist) {
+            errors.push({text: 'This email is already in use'});
+        }
+
+        if (password != password2) {
+            errors.push({text: "The passwords doesn't match"}); 
+        }
+        
+
+        if (errors.length > 0) {
+            res.render('register', {
+            errors,
+            name, 
+            email})
+            //to do: hashed passwords + rewrite the errors code with flashmessages or something else
+        } else {
+            await UserModel.create({
+                name: name,
+                email: email,
+                password: password,
+            })
+            .then(() => {
+                res.redirect('/')
+            }).catch(err => console.log(err));
+        
+    }
     };
 
     async update(req: Request, res: Response) {

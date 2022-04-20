@@ -1,11 +1,13 @@
 import express from 'express';
-import UserController from '../controllers/userController';
+import UserController from '../controllers/UserController';
 
 const router = express.Router();
 
-//create
+router.get('/', (req, res) => res.render('index'))
 
-router.post('/users', UserController.create);
+//create
+router.get('/register', (req, res) => res.render('register'))
+router.post('/register', UserController.create);
 
 //read
 

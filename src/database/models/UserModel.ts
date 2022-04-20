@@ -11,8 +11,8 @@ export const UserModel = db.define('user', {
         type: DataTypes.STRING, 
         allowNull: false
     },
-    age: {
-        type: DataTypes.INTEGER, 
+    password: {
+        type: DataTypes.STRING, 
         allowNull: false 
     },
 })

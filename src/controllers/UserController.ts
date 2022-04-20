@@ -52,7 +52,9 @@ class UserController {
                 email: email,
                 password: password,
             })
+            
             .then(() => {
+                res.status(201)
                 res.redirect('/')
             }).catch(err => console.log(err));
         

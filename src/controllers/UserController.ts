@@ -1,6 +1,7 @@
 import {Request, Response} from 'express';
 import { UserModel } from '../database/models/UserModel';
-import {registerValidation} from '../validation/validation';
+import {loginValidation, registerValidation} from '../validation/validation';
+import bcrypt from 'bcrypt';
 
 class UserController {
 
@@ -41,16 +42,18 @@ class UserController {
         
 
         if (errors.length > 0) {
+            res.status(406)
             res.render('register', {
             errors,
             name, 
             email})
             //to do: hashed passwords + rewrite the errors code with flashmessages or something else
         } else {
+            const hashedPassword = await bcrypt.hash(password, 10);;
             await UserModel.create({
                 name: name,
                 email: email,
-                password: password,
+                password: hashedPassword,
             })
             
             .then(() => {
@@ -75,6 +78,47 @@ class UserController {
         await UserModel.destroy({where: {id: userId}});
         return res.status(204).send();
     }
+
+    async login(req: Request, res: Response) {
+        let {email, password} = req.body;
+        let {error} = loginValidation(req.body)
+        let errors: any[] = [];
+
+        if (error) {
+            errors.push({text: error.details[0].message})
+        }
+        
+        const user: any = await UserModel.findOne({where: {email: email} });
+
+        if (!user) {
+            errors.push({text: "This email doesn't exist"})
+            res.status(406)
+            res.render('login',{
+            errors,
+            email
+        })
+        } else {
+       const userPassword = user.password
+       const validPassword = await bcrypt.compare(password, userPassword)
+        
+        
+        if (!validPassword) {
+            errors.push({text: "Invalid password"})
+        };
+        
+        if (errors.length > 0 ) {
+            res.render('login', {
+           errors, 
+           email
+       })
+       } else {
+           res.status(200)
+           res.redirect('/dashboard')
+           
+       }
+
+    }
+}
 }
 
 

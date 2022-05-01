@@ -1,9 +1,11 @@
 import express from 'express';
 import UserController from '../controllers/UserController';
 
+
 const router = express.Router();
 
-router.get('/', (req, res) => res.render('index'))
+router.get('/', (req, res) => {
+    res.render('index')})
 
 //create
 router.get('/register', (req, res) => res.render('register'))
@@ -13,6 +15,8 @@ router.post('/register', UserController.create);
 router.get('/login', (req, res) => res.render('login'));
 router.post('/login', UserController.login);
 
+//dashboard
+router.get('/dashboard', UserController.dashboard)
 //read
 
 

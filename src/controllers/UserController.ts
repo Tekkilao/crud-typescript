@@ -2,6 +2,13 @@ import {Request, Response} from 'express';
 import { UserModel } from '../database/models/UserModel';
 import {loginValidation, registerValidation} from '../validation/validation';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken'
+import { verifyToken } from '../validation/verifyToken';
+import deserializeUser from '../middleware/deserializeUser';
+
+
+
+
 
 class UserController {
 
@@ -112,13 +119,41 @@ class UserController {
            email
        })
        } else {
-           res.status(200)
+           //i can't use dotenv properly yet so ill be letting the token exposed
+           const token = jwt.sign({id: user.id}, "3");                     
+           console.log(token)
+           res.cookie('token', token, {
+            maxAge: 300000,
+            httpOnly: true, 
+           })
+                      
            res.redirect('/dashboard')
            
-       }
+       }    
 
     }
+
 }
+
+    async dashboard(req: Request, res: Response) {
+        
+        const {token} = req.cookies;
+        let errors: any[] = []
+        if (!token) {
+            errors.push('You are not logged in')
+            
+            res.redirect(403, '/login')
+        } else {
+        let userToken: any = jwt.decode(token);
+        
+        let id: any = userToken.id
+        const user: any = await UserModel.findOne({where: {id: id} });
+        const name: any = user.name
+        const data = {name: name}
+        res.render('dashboard', data)
+        }
+    }
+
 }
 
 
